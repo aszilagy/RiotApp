@@ -1,0 +1,93 @@
+/* Div CSS */
+
+body{
+  background-color: lightblue;
+}
+
+.container.eventLog{
+  border: double;
+  border-width: 1px;
+  max-width: 31%;
+  overflow-x: hidden;
+  float: right;
+  font-size: 11px;
+  margin-right: 7px;
+}
+
+.container.eventLog p{
+  margin:0px;
+}
+
+.container.cont{
+  margin: 10px;
+  max-width:66%;
+}
+
+.container.cont.outer{
+  border: double;
+  border-width: 1px;
+}
+
+.container.cont.inner{
+  margin-top:15px;
+}
+
+.container.head p{
+  font-size: 30px;
+}
+
+.container form{
+  display: inline;
+}
+
+.container.button{
+  height: 36px;
+}
+
+#getTournForm{
+  float: left;
+  margin-left: -15px;
+}
+
+#refreshForm{
+  float: right;
+  margin-right: -56%;
+}
+
+hr{
+  border: 0;
+  border-top: 1px solid black;
+  margin-top: 0px;
+  margin-bottom: 7px;
+}
+
+.container #errorCode{
+  background-color:red;
+  font-size:18px;
+  width: 41%;
+}
+
+.full{
+  background-color: slategray;
+  width:100%;
+}
+
+/* Table CSS */
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+#row{
+  background-color: #dddddd;
+}
+
+/*tr:nth-child(even) {
+    background-color: #dddddd;
+}(/
