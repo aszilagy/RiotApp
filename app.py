@@ -8,6 +8,8 @@ config.read('config.ini')
 
 encrypted_pass = config['DEFAULT']['PASSWORD']
 encrypted_user = config['DEFAULT']['USER']
+port = config['DEFAULT']['PORT']
+host = config['DEFAULT']['HOST']
 tournieId = ""
 
 blueTeam = []
@@ -98,4 +100,4 @@ def home():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host=host, port=port)
