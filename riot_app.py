@@ -21,6 +21,14 @@ def get_events(tourn):
     myReq = requests.get(url, params=params, verify=True)
     jData = myReq.json()
 
+
+    #eventTypeList = ['PracticeGameCreatedEvent', 'PlayerJoinedGameEvent', 'PlayerSwitchedTeamEvent', 'PlayerQuitGameEvent', 'ChampSelectStartedEvent', 'GameAllocationStartedEvent', 'GameAllocatedToLsmEvent']
+    fakeData = {'timestamp': '1234567890001',
+                'eventType': '',
+                'summonerId':''}
+
+    j['eventList'].append(fakeData)
+
     for j in jData['eventList']:
         print(j['timestamp'], j['summonerId'], j['eventType'])
         if j['summonerId'] != None:

@@ -9,7 +9,7 @@
 </head>
 
 <body>
-  <div class='container cont'>
+  <div class='container login'>
     <p id="errorCode" class = "container">{{ error }}</p>
     <form action="{{ url_for('verify_login')}}" method="post">
       <p>Username:</p>
@@ -18,7 +18,7 @@
       <p>Password:</p>
       <input type="password" name="password" required>
 
-      <div>
+      <div id="loginButton">
         <input type="submit" class="btn btn-primary submitButton" name="Login">
         </div>
     </form>

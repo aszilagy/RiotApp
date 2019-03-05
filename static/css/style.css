@@ -4,6 +4,18 @@ body{
   background-color: lightblue;
 }
 
+.navbar a{
+  color: white;
+}
+
+.navbar{
+  background-color: slategray;
+}
+
+.container{
+  background-color: white;
+}
+
 .container.eventLog{
   border: double;
   border-width: 1px;
@@ -18,9 +30,18 @@ body{
   margin:0px;
 }
 
+.container.head{
+  background-color: lightblue;
+}
+
 .container.cont{
   margin: 10px;
   max-width:66%;
+}
+
+.container.login{
+  max-width: 32%;
+  float: left;
 }
 
 .container.cont.outer{
@@ -42,6 +63,11 @@ body{
 
 .container.button{
   height: 36px;
+}
+
+#loginButton{
+  float: right;
+  margin: 10px;
 }
 
 #getTournForm{
@@ -68,7 +94,6 @@ hr{
 }
 
 .full{
-  background-color: slategray;
   width:100%;
 }
 
