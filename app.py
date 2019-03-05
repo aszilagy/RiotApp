@@ -37,15 +37,56 @@ def verify_login():
 
     return render_template('login.html')
 
+def addToBlue(summoner):
+    global blueTeam
+    removeFromRed(summoner)
+
+    blueIds = [s.summonerId for s in blueTeam]
+    if summoner.summonerId not in blueIds:
+        blueTeam.append(summoner)
+    
+def removeFromBlue(summoner):
+    blueIds = [s.summonerId for s in blueTeam]
+    if summoner.summonerId in blueIds:
+        index = blueIds.index(summoner.summonerId)
+        del blueIds[index]
+        del blueTeam[index]
+
+
+def addToRed(summoner):
+    global redTeam
+    removeFromBlue(summoner)
+
+    redIds = [s.summonerId for s in redTeam]
+    if summoner.summonerId not in redIds:
+        redTeam.append(summoner)
 
 def removeFromRed(summoner):
     redIds = [s.summonerId for s in redTeam]
     if summoner.summonerId in redIds:
         index = redIds.index(summoner.summonerId)
-        print(index)
         del redIds[index]
         del redTeam[index]
 
+def quitGame(summoner):
+    global blueTeam, redTeam
+    redIds = [s.summonerId for s in redTeam]
+    blueIds = [si.summonerId for si in blueTeam]
+    if summoner.summonerId in redIds:
+        removeFromRed(summoner)
+
+    if summoner.summonerId in blueIds:
+        removeFromBlue(summoner)
+
+def switchTeam(summoner):
+    global blueTeam, redTeam
+    redIds = [s.summonerId for s in redTeam]
+    blueIds = [si.summonerId for si in blueTeam]
+    if summoner.summonerId in redIds:
+        addToBlue(summoner)
+
+    if summoner.summonerId in blueIds:
+        addToRed(summoner)
 
 @app.route('/refresh_tourney/', methods=['GET','POST'])
 def refresh_tourney():
@@ -64,51 +105,21 @@ def refresh_tourney():
         summoner, eventData = obj['summoner'], obj['eventType']
 
         if eventData == 'PlayerJoinedGameEvent' and obj['summonerId'] != None:
-            # if len(redTeam) < len(blueTeam):
-            #    # if len(redTeam) != 5
-            #    #    add to red (team 2)
-            # else:
-            #    # if len(blueTeam) != 5
-            #    #    add to blue
-            if summoner not in blueTeam:
-                print("NOT ON BLUE, add to blue")
-                summoner.team = 1
-                blueTeam.append(summoner)
-
-            redIds = [s.summonerId for s in redTeam]
-            if summoner.summonerId in redIds:
-                index = redIds.index(summoner.summonerId)
-                del redIds[index]
-                del redTeam[index]
-
-        if eventData == 'PlayerSwitchedTeamEvent' and obj['summonerId'] != None:
-            #if on blueTeam, move to red
-            #if on redteam, move to blue
-            if summoner not in redTeam:
-                print("NOT ON RED, add to red")
-                summoner.team = 2
-                redTeam.append(summoner)
-
-            #XXX: This is temporary fix, idk why the other if doesn't work.
-            blueIds = [s.summonerId for s in blueTeam]
-            if summoner.summonerId in blueIds:
-                index = blueIds.index(summoner.summonerId)
-                del blueIds[index]
-                del blueTeam[index]
-            
-        if eventData == 'PlayerQuitGameEvent' and obj['summonerId'] != None:
-            #FIXME: Change this like above
-            if summoner in blueTeam:
-                print("Found summoner on blue team that left game")
-                blueTeam.remove(summoner)
-
-            #FIXME: Change this like above
-            elif summoner in redTeam:
-                print("Found summoner on red team that left game")
-                redTeam.remove(summoner)
+            if len(redTeam) < len(blueTeam):
+                if len(redTeam) != 5:
+                    addToRed(summoner)
 
             else:
-                print("Summoner not in game")
+                if len(blueTeam) != 5:
+                    addToBlue(summoner)
+
+        if eventData == 'PlayerSwitchedTeamEvent' and obj['summonerId'] != None:
+            switchTeam(summoner)
+
+        if eventData == 'PlayerQuitGameEvent' and obj['summonerId'] != None:
+            #XXX Removed for now, for testing purposes
+            #quitGame(summoner)
+            continue
 
     return render_template('index.html', tourn_id = tournieId, eventList = jData['eventList'], blueTeam = blueTeam, redTeam = redTeam)
 
