@@ -10,7 +10,11 @@ config.read('config.ini')
 api_key = config['DEFAULT']['API_KEY']
 
 def main():
-    #get_summoner_info('Belgian Wofls')
+    get_summoner_info('Belgian Wofls')
+    get_summoner_info('Mavisl')
+    get_summoner_info('Finland Wofls')
+    get_summoner_info('iMarluxia')
+
     tourn = get_provider_id()
 
     get_events(tourn)
@@ -21,13 +25,12 @@ def get_events(tourn):
     myReq = requests.get(url, params=params, verify=True)
     jData = myReq.json()
 
-
     #eventTypeList = ['PracticeGameCreatedEvent', 'PlayerJoinedGameEvent', 'PlayerSwitchedTeamEvent', 'PlayerQuitGameEvent', 'ChampSelectStartedEvent', 'GameAllocationStartedEvent', 'GameAllocatedToLsmEvent']
     fakeData = {'timestamp': '1234567890001',
-                'eventType': '',
-                'summonerId':''}
+                'eventType': 'PlayerJoinedGameEvent',
+                'summonerId': None}
 
-    j['eventList'].append(fakeData)
+    jData['eventList'].append(fakeData)
 
     for j in jData['eventList']:
         print(j['timestamp'], j['summonerId'], j['eventType'])
@@ -46,7 +49,7 @@ def get_events(tourn):
 
 def get_provider_id():
     url = 'https://americas.api.riotgames.com/lol/tournament-stub/v4/providers?api_key='+api_key
-    data = {"url": "http://18.232.99.218/", "region":"NA"}
+    data = {"url": "http://54.159.86.209/", "region":"NA"}
     myReq = requests.post(url, data=json.dumps(data), verify=True)
     jprint(myReq)
 
@@ -118,6 +121,7 @@ def get_summoner_info(summoner_name):
     if(myReq.ok):
         jDat = json.loads(myReq.content)
         summonerObj = json_to_summoner(myReq)
+        print(summonerObj.name, summonerObj.summonerId)
         return summonerObj
 
     else:

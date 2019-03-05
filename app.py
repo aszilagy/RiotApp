@@ -38,6 +38,15 @@ def verify_login():
     return render_template('login.html')
 
 
+def removeFromRed(summoner):
+    redIds = [s.summonerId for s in redTeam]
+    if summoner.summonerId in redIds:
+        index = redIds.index(summoner.summonerId)
+        print(index)
+        del redIds[index]
+        del redTeam[index]
+
+
 @app.route('/refresh_tourney/', methods=['GET','POST'])
 def refresh_tourney():
     if 'username' not in session:
@@ -55,39 +64,45 @@ def refresh_tourney():
         summoner, eventData = obj['summoner'], obj['eventType']
 
         if eventData == 'PlayerJoinedGameEvent' and obj['summonerId'] != None:
+            # if len(redTeam) < len(blueTeam):
+            #    # if len(redTeam) != 5
+            #    #    add to red (team 2)
+            # else:
+            #    # if len(blueTeam) != 5
+            #    #    add to blue
             if summoner not in blueTeam:
                 print("NOT ON BLUE, add to blue")
                 summoner.team = 1
                 blueTeam.append(summoner)
 
-            if summoner in redTeam:
-                print("ON RED")
-                redTeam.remove(summoner)
+            redIds = [s.summonerId for s in redTeam]
+            if summoner.summonerId in redIds:
+                index = redIds.index(summoner.summonerId)
+                del redIds[index]
+                del redTeam[index]
 
         if eventData == 'PlayerSwitchedTeamEvent' and obj['summonerId'] != None:
+            #if on blueTeam, move to red
+            #if on redteam, move to blue
             if summoner not in redTeam:
                 print("NOT ON RED, add to red")
                 summoner.team = 2
                 redTeam.append(summoner)
 
             #XXX: This is temporary fix, idk why the other if doesn't work.
-            #XXX: It seems like a new object being created has diff signature
-            blueNames = [s.name for s in blueTeam]
-            if summoner.name in blueNames:
-                index = blueNames.index(summoner.name)
-                del blueNames[index]
+            blueIds = [s.summonerId for s in blueTeam]
+            if summoner.summonerId in blueIds:
+                index = blueIds.index(summoner.summonerId)
+                del blueIds[index]
                 del blueTeam[index]
-
-            #FIXME: This doesn't work for some reason
-            if summoner in blueTeam:
-                print("ON BLUE")
-                blueTeam.remove(summoner)
             
         if eventData == 'PlayerQuitGameEvent' and obj['summonerId'] != None:
+            #FIXME: Change this like above
             if summoner in blueTeam:
                 print("Found summoner on blue team that left game")
                 blueTeam.remove(summoner)
 
+            #FIXME: Change this like above
             elif summoner in redTeam:
                 print("Found summoner on red team that left game")
                 redTeam.remove(summoner)
