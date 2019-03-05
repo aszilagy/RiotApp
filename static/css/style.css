@@ -54,7 +54,7 @@ body{
 }
 
 .container.head p{
-  font-size: 30px;
+  font-size: 25px;
 }
 
 .container form{
@@ -63,6 +63,10 @@ body{
 
 .container.button{
   height: 36px;
+}
+
+#tournId{
+  width: 156%;
 }
 
 #loginButton{

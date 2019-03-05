@@ -125,13 +125,5 @@ def get_tourney():
 
     return render_template('index.html',tourn_id=tournieId)
 
-
-@app.route('/remind/', methods=['GET','POST'])
-def home():
-    if 'username' not in session:
-        return "You are not logged in <br><a href = '/'></b>" + "click here to log in</b></a>"
-
-    return render_template('index.html')
-
 if __name__ == '__main__':
     app.run(debug=True, host=host, port=port)
