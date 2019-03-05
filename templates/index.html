@@ -29,11 +29,12 @@
 	<p> Game has been Created </p>
 
         {% elif event['eventType'] == 'PlayerJoinedGameEvent' %}
-	<!-- Add Player !-->
 	<p> Player has joined: {{ event['summoner'].name }} </p>
 
+        {% elif event['eventType'] == 'PlayerSwitchedTeamEvent' %}
+	<p> Player has swapped Team: {{ event['summoner'].name }} </p>
+
         {% elif event['eventType'] == 'PlayerQuitGameEvent' %}
-	<!-- Remove Player !-->
 	<p> Player has left: {{event['summoner'].name }} </p>
 	{% endif %}
       {% endfor %}
@@ -48,7 +49,7 @@
     </div>--!>
     <div class="container cont inner">
       <div class="container button">
-	<form id="getTournForm" action="/get_tourney/" method="get">
+	<form id="getTournForm" action="/refresh_tourney/" method="get">
 	    <button type="submit">Get Tourney</button>
 	</form>
 	<form id="refreshForm" action="/refresh_tourney/" method="get">

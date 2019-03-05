@@ -37,56 +37,45 @@ def verify_login():
 
     return render_template('login.html')
 
-def addToBlue(summoner):
+def swapToBlue(summoner):
     global blueTeam
     removeFromRed(summoner)
 
-    blueIds = [s.summonerId for s in blueTeam]
-    if summoner.summonerId not in blueIds:
+    if summoner not in blueTeam:
         blueTeam.append(summoner)
     
 def removeFromBlue(summoner):
-    blueIds = [s.summonerId for s in blueTeam]
-    if summoner.summonerId in blueIds:
-        index = blueIds.index(summoner.summonerId)
-        del blueIds[index]
-        del blueTeam[index]
+    global blueTeam
+    if summoner in blueTeam:
+        blueTeam.remove(summoner)
 
-
-def addToRed(summoner):
+def swapToRed(summoner):
     global redTeam
     removeFromBlue(summoner)
 
-    redIds = [s.summonerId for s in redTeam]
-    if summoner.summonerId not in redIds:
+    if summoner not in redTeam:
         redTeam.append(summoner)
 
 def removeFromRed(summoner):
-    redIds = [s.summonerId for s in redTeam]
-    if summoner.summonerId in redIds:
-        index = redIds.index(summoner.summonerId)
-        del redIds[index]
-        del redTeam[index]
+    global redTeam
+    if summoner in redTeam:
+        redTeam.remove(summoner)
 
 def quitGame(summoner):
     global blueTeam, redTeam
-    redIds = [s.summonerId for s in redTeam]
-    blueIds = [si.summonerId for si in blueTeam]
-    if summoner.summonerId in redIds:
+    if summoner in redTeam:
         removeFromRed(summoner)
 
-    if summoner.summonerId in blueIds:
+    elif summoner in blueTeam:
         removeFromBlue(summoner)
 
 def switchTeam(summoner):
     global blueTeam, redTeam
-    redIds = [s.summonerId for s in redTeam]
-    blueIds = [si.summonerId for si in blueTeam]
-    if summoner.summonerId in redIds:
-        addToBlue(summoner)
+    if summoner in redTeam:
+        swapToBlue(summoner)
 
-    if summoner.summonerId in blueIds:
-        addToRed(summoner)
+    if summoner in blueTeam:
+        swapToRed(summoner)
 
 @app.route('/refresh_tourney/', methods=['GET','POST'])
 def refresh_tourney():
@@ -107,11 +96,11 @@ def refresh_tourney():
         if eventData == 'PlayerJoinedGameEvent' and obj['summonerId'] != None:
             if len(redTeam) < len(blueTeam):
                 if len(redTeam) != 5:
-                    addToRed(summoner)
+                    swapToRed(summoner)
 
             else:
                 if len(blueTeam) != 5:
-                    addToBlue(summoner)
+                    swapToBlue(summoner)
 
         if eventData == 'PlayerSwitchedTeamEvent' and obj['summonerId'] != None:
             switchTeam(summoner)
@@ -123,18 +112,6 @@ def refresh_tourney():
 
     return render_template('index.html', tourn_id = tournieId, eventList = jData['eventList'], blueTeam = blueTeam, redTeam = redTeam)
 
-
-@app.route('/get_tourney/', methods=['GET','POST'])
-def get_tourney():
-    if 'username' not in session:
-        return "You are not logged in <br><a href = '/'></b>" + "click here to log in</b></a>"
-
-    global tournieId
-    print("Working")
-    tournieId = ri.get_provider_id()
-    print(tournieId)
-
-    return render_template('index.html',tourn_id=tournieId)
 
 if __name__ == '__main__':
     app.run(debug=True, host=host, port=port)

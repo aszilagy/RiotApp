@@ -1,4 +1,5 @@
 import requests
+import time
 import json
 import pprint
 import flask
@@ -8,18 +9,17 @@ config = cf.ConfigParser()
 config.read('config.ini')
 
 api_key = config['DEFAULT']['API_KEY']
+summonerDict = {}
 
 def main():
-    get_summoner_info('Belgian Wofls')
-    get_summoner_info('Mavisl')
-    get_summoner_info('Finland Wofls')
-    get_summoner_info('iMarluxia')
+    #tourn = get_provider_id()
 
-    tourn = get_provider_id()
-
-    get_events(tourn)
+    #get_events(tourn)
+    pass
 
 def get_events(tourn):
+    start = time.time()
+    print("Getting list of events")
     url = 'https://americas.api.riotgames.com/lol/tournament-stub/v4/lobby-events/by-code/' + tourn 
     params = {"api_key": api_key}
     myReq = requests.get(url, params=params, verify=True)
@@ -51,25 +51,36 @@ def get_events(tourn):
         jData['eventList'].append(ddo)
 
     for j in jData['eventList']:
-        #print(j['timestamp'], j['summonerId'], j['eventType'])
         if (j['summonerId'] != None) and (j['summonerId'] in fakeSummoners):
-            j['summoner'] = get_summoner_by_id(j['summonerId'])
+            if j['summonerId'] in summonerDict.keys():
+                j['summoner'] = summonerDict[j['summonerId']]
+
+            else:
+                summonerObj = get_summoner_by_id(j['summonerId'])
+                j['summoner'] = summonerObj
+                summonerDict[j['summonerId']] = summonerObj
 
         elif j['summonerId'] != None:
-            j['summoner'] = get_summoner_info('Decelx')
+            if j['summonerId'] in summonerDict.keys():
+                j['summoner'] = summonerDict[j['summonerId']]
+
+            else:
+                summonerObj = get_summoner_info('Decelx')
+                j['summoner'] = summonerObj
+                summonerDict[j['summonerId']] = summonerObj
 
         else:
             j['summoner'] = None
 
-    #print(jData)
-
+    end = time.time()
+    print("GET_EVENTS TOOK %.2gs" % (end-start))
     return jData
 
 def get_provider_id():
+    print("Getting provider ID")
     url = 'https://americas.api.riotgames.com/lol/tournament-stub/v4/providers?api_key='+api_key
     data = {"url": "http://54.159.86.209/", "region":"NA"}
     myReq = requests.post(url, data=json.dumps(data), verify=True)
-    #jprint(myReq)
 
     jsonReq = myReq.json() #158 <- PROVIDER ID
 
@@ -78,11 +89,11 @@ def get_provider_id():
     return tourn
 
 def get_tourn_id(tournId:int):
+    print("Getting tournament ID")
     url = 'https://americas.api.riotgames.com/lol/tournament-stub/v4/tournaments'
     params = {"api_key": api_key}
     data = {"name":"Friends-Game-Night", "providerId":tournId}
     myReq = requests.post(url, data=json.dumps(data), params=params, verify=True)
-    #jprint(myReq)
 
     jsonReq = myReq.json() #3968 <- TOURNAMENT ID
 
@@ -91,16 +102,14 @@ def get_tourn_id(tournId:int):
     return tourn
 
 def create_tourney_game(tournId):
+    print("Creating lobby")
     url = 'https://americas.api.riotgames.com/lol/tournament-stub/v4/codes'
     params = {"api_key": api_key, "tournamentId": tournId}
     data = {"teamSize":5, "mapType":"SUMMONERS_RIFT", "pickType": "DRAFT_MODE", "spectatorType":"ALL"}
 
     headers = {'content-type':'application/json'}
-    #print('Data object', data)
     myReq = requests.post(url, data=json.dumps(data), params=params, verify=True)
 
-    #print("Creating mock tourney")
-    #jprint(myReq)
     tourn_id = myReq.json()[0]
 
     return tourn_id
@@ -111,10 +120,6 @@ def jprint(jsonD):
     Parameters: Request ... myReq  [Returned from requests.get]
     '''
     jData = json.loads(jsonD.content)
-    #print(json.dumps(jData, indent=4))
-
-def parse_summoners(ln):
-    ln = ['Decelx', 'Finland Wofls']
 
 def get_summoner_mastery(summoner_id: str):
     pass
@@ -124,8 +129,8 @@ def get_summoner_by_id(summoner_id):
     myReq = requests.get(url, verify=True)
     if(myReq.ok):
         jDat = json.loads(myReq.content)
-        #jprint(myReq)
         summonerObj = json_to_summoner(myReq)
+        print("Getting summoner id for %s" % summonerObj.name)
         return summonerObj
 
     else:
@@ -134,12 +139,12 @@ def get_summoner_by_id(summoner_id):
 
 
 def get_summoner_info(summoner_name):
+    print("Getting summoner object by name: %s" % summoner_name)
     url = 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/'+ summoner_name + '?api_key='+api_key
     myReq = requests.get(url, verify=True)
     if(myReq.ok):
         jDat = json.loads(myReq.content)
         summonerObj = json_to_summoner(myReq)
-        #print(summonerObj.name, summonerObj.summonerId)
         return summonerObj
 
     else:
