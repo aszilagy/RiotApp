@@ -170,7 +170,7 @@ def json_to_rank(jsonD):
     jList = json.loads(jsonD.content)
 
     if len(jList) == 0:
-        print("UNRANKED")
+        #They are unranked
         return None
 
     for jData in jList:
@@ -197,8 +197,6 @@ def json_to_rank(jsonD):
 
 
     rankList = sorted(rankList, key = lambda k: rankOrder.index(k.tier))
-    print([r.name for r in rankList])
-    print([r.position for r in rankList])
 
     return rankList
 
