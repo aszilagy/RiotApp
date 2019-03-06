@@ -66,6 +66,8 @@
 	<tr>
 	  <th>Summoner Name</th>
 	  <th>Level</th>
+	  <th>Rank</th>
+	  <th>Main Role</th>
 	</tr>
 
 	<tr id="row">
@@ -73,6 +75,13 @@
 	  <tr>
 	    <td>{{summoner.name}}</td>
 	    <td>{{summoner.level}}</td>
+	    {% if summoner.rank != None %}
+	    <td>{{summoner.rank[0].tier}} {{summoner.rank[0].rank}}</td>
+	    <td>{{summoner.rank[0].position}}</td>
+	    {% else %}
+	    <td>Unranked</td>
+	    <td>N/A</td>
+	    {% endif %}
 	  </tr>
 	{% endfor %}
 	</tr>
@@ -86,6 +95,13 @@
           <tr>
 	    <td>{{summoner.name}}</td>
 	    <td>{{summoner.level}}</td>
+	    {% if summoner.rank != None %}
+	    <td>{{summoner.rank[0].tier}} {{summoner.rank[0].rank}}</td>
+	    <td>{{summoner.rank[0].position}}</td>
+	    {% else %}
+	    <td>Unranked</td>
+	    <td>N/A</td>
+	    {% endif %}
 	  </tr>
 	{% endfor %}
 	</tr>

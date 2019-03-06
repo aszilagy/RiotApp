@@ -1,8 +1,7 @@
 # List of things to do:
 1. Add a page for configuring tournament settings (spectatorType, mapType, pickType)
-2. Add summonerMastery API call (and add info to summoner Object)
-    * Add these stats to the table (rank, misc..)
-    * Add a menu to interact with summoner stats (detailedView)
+2. Add a menu to interact with summoner stats (detailedView) once they are clicked on
+    * There is a BUG with the teamSwap (I think?). Upon refresh, someone swaps teams. 
 3. Add Spectator API call (https://developer.riotgames.com/api-methods/#spectator-v4)
 4. On *ChampSelectStartedEvent*, run Spectator API to monitor pre-game lobby
     * This needs it's own UI and should be a seperate page?

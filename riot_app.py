@@ -12,9 +12,6 @@ api_key = config['DEFAULT']['API_KEY']
 summonerDict = {}
 
 def main():
-    #tourn = get_provider_id()
-
-    #get_events(tourn)
     pass
 
 def get_events(tourn):
@@ -38,10 +35,13 @@ def get_events(tourn):
                 {'timestamp': '1234567890004',
                 'eventType': 'PlayerJoinedGameEvent',
                 'summonerId': 'sfKJB_hj5Uo7UlJwfXWOIpkDxG5GY2euTMR6kKTUsju9L6I'},
-                {'timestamp': '1234567890001',
+                {'timestamp': '1234567890005',
+                'eventType': 'PlayerJoinedGameEvent',
+                'summonerId': get_summoner_by_name('imaqtpie',justId=True)},
+                {'timestamp': '1234567890006',
                 'eventType': 'PlayerSwitchedTeamEvent',
                 'summonerId': 'sfKJB_hj5Uo7UlJwfXWOIpkDxG5GY2euTMR6kKTUsju9L6I'},
-                {'timestamp': '1234567890001',
+                {'timestamp': '1234567890007',
                 'eventType': 'PlayerSwitchedTeamEvent',
                 'summonerId': 'sfKJB_hj5Uo7UlJwfXWOIpkDxG5GY2euTMR6kKTUsju9L6I'}]
 
@@ -57,6 +57,7 @@ def get_events(tourn):
 
             else:
                 summonerObj = get_summoner_by_id(j['summonerId'])
+                summonerObj.rank = get_summoner_rank(j['summonerId'])
                 j['summoner'] = summonerObj
                 summonerDict[j['summonerId']] = summonerObj
 
@@ -65,7 +66,8 @@ def get_events(tourn):
                 j['summoner'] = summonerDict[j['summonerId']]
 
             else:
-                summonerObj = get_summoner_info('Decelx')
+                summonerObj = get_summoner_by_name('Decelx')
+                summonerObj.rank = get_summoner_rank(summonerObj.summonerId)
                 j['summoner'] = summonerObj
                 summonerDict[j['summonerId']] = summonerObj
 
@@ -120,15 +122,25 @@ def jprint(jsonD):
     Parameters: Request ... myReq  [Returned from requests.get]
     '''
     jData = json.loads(jsonD.content)
+    print(jData)
 
-def get_summoner_mastery(summoner_id: str):
-    pass
+def get_summoner_rank(summoner_id: str):
+    url = 'https://na1.api.riotgames.com/lol/league/v4/positions/by-summoner/' + summoner_id + '?api_key='+api_key
+    myReq = requests.get(url, verify=True)
+    if(myReq.ok):
+        rankList = json_to_rank(myReq)
+        if rankList != None:
+            print("Getting rank for %s" % rankList[0].name)
+        return rankList
+
+    else:
+        print("SUMMONER_MASTERY BAD")
+        jprint(myReq)
 
 def get_summoner_by_id(summoner_id):
     url = 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/'+ summoner_id + '?api_key='+api_key
     myReq = requests.get(url, verify=True)
     if(myReq.ok):
-        jDat = json.loads(myReq.content)
         summonerObj = json_to_summoner(myReq)
         print("Getting summoner id for %s" % summonerObj.name)
         return summonerObj
@@ -138,17 +150,57 @@ def get_summoner_by_id(summoner_id):
         jprint(myReq)
 
 
-def get_summoner_info(summoner_name):
+def get_summoner_by_name(summoner_name, justId = False):
     print("Getting summoner object by name: %s" % summoner_name)
     url = 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/'+ summoner_name + '?api_key='+api_key
     myReq = requests.get(url, verify=True)
     if(myReq.ok):
-        jDat = json.loads(myReq.content)
         summonerObj = json_to_summoner(myReq)
+        if justId == True:
+            return summonerObj.summonerId
         return summonerObj
 
     else:
         print("SUMMONER_INFO BAD")
+        jprint(myReq)
+
+def json_to_rank(jsonD):
+    rankList = []
+    rankOrder = ['IRON', 'BRONZE', 'SILVER','GOLD','PLATINUM','DIAMOND','MASTER','GRANDMASTER','CHALLENGER']
+    jList = json.loads(jsonD.content)
+
+    if len(jList) == 0:
+        print("UNRANKED")
+        return None
+
+    for jData in jList:
+        if 'miniSeries' not in jData:
+            jData['miniSeries'] = {}
+        rankObj = Rank(jData['queueType'], 
+                jData['summonerName'],
+                jData['hotStreak'],
+                jData['miniSeries'],
+                jData['wins'],
+                jData['veteran'],
+                jData['losses'],
+                jData['rank'],
+                jData['leagueId'],
+                jData['inactive'],
+                jData['freshBlood'],
+                jData['leagueName'],
+                jData['position'],
+                jData['tier'],
+                jData['summonerId'],
+                jData['leaguePoints'])
+
+        rankList.append(rankObj)
+
+
+    rankList = sorted(rankList, key = lambda k: rankOrder.index(k.tier))
+    print([r.name for r in rankList])
+    print([r.position for r in rankList])
+
+    return rankList
 
 def json_to_summoner(jsonD):
     jData = json.loads(jsonD.content)
@@ -162,6 +214,41 @@ def json_to_summoner(jsonD):
 
     return sumObj
 
+class Rank:
+    def __init__(self,
+            queueType: str,
+            summonerName: str,
+            hotStreak: bool,
+            miniSeries,
+            wins: int,
+            veteran: bool,
+            losses: int,
+            rank: str,
+            leagueId: str,
+            inactive: bool,
+            freshBlood: bool,
+            leagueName: bool,
+            position: str,
+            tier: str,
+            summonerId: str,
+            leaguePoints: int):
+        self.queueType = queueType
+        self.name = summonerName
+        self.hotStreak = hotStreak
+        self.miniSeries = miniSeries
+        self.wins = wins
+        self.veteran = veteran
+        self.losses = losses
+        self.rank = rank
+        self.leagueId = leagueId
+        self.inactive = inactive
+        self.freshBlood = freshBlood
+        self.leagueName = leagueName
+        self.position = position
+        self.tier = tier
+        self.summonderId = summonerId
+        self.leaguePoints = leaguePoints
+
 class Summoner:
     def __init__(self,
             profileIconId: int,
@@ -170,7 +257,8 @@ class Summoner:
             summonerLevel: int,
             revisionDate: int,
             summonerId: str,
-            accountId: str):
+            accountId: str,
+            rank = None):
         self.icon = profileIconId
         self.name = name
         self.puuid = puuid
@@ -178,6 +266,7 @@ class Summoner:
         self.revDate = revisionDate
         self.summonerId = summonerId
         self.accountId = accountId
+        self.rank = rank #List of Rank objects
 
 if __name__ == '__main__':
     main()
