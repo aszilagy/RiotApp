@@ -1,7 +1,7 @@
 import requests
 import time
 import json
-import pprint
+from pprint import pprint
 import flask
 import configparser as cf
 
@@ -12,6 +12,7 @@ api_key = config['DEFAULT']['API_KEY']
 summonerDict = {}
 
 def main():
+    rank = get_summoner_rank(get_summoner_by_name('Mavisl', justId=True))
     pass
 
 def get_events(tourn):
@@ -212,6 +213,34 @@ def json_to_summoner(jsonD):
 
     return sumObj
 
+#TODO: Create json_to_champion
+
+class Champion:
+    def __init__(self):
+        #TODO: Get it from here https://developer.riotgames.com/static-data.html
+        pass
+
+class ChampionMastery:
+    def __init__(self,
+            chestGranted: bool,
+            championLevel: int,
+            championPoints: int,
+            championId: int,
+            championPointsUntilNextLevel: int,
+            lastPlayTime: int,
+            tokensEarned: int,
+            championPointsSinceLastLevel: int,
+            summonerId: str):
+        self.chestGranted = chestGranted
+        self.championLevel = championLevel
+        self.championPoints = championPoints
+        self.championId = championId
+        self.championPointsUntilNextLevel = championPointsUntilNextLevel
+        self.lastPlayTime = lastPlayTime
+        self.tokensEarned = tokensEarned
+        self.championPointsSinceLastLevel = championPointsSinceLastLevel
+        self.summonerId = summonerId
+
 class Rank:
     def __init__(self,
             queueType: str,
@@ -256,7 +285,8 @@ class Summoner:
             revisionDate: int,
             summonerId: str,
             accountId: str,
-            rank = None):
+            rank = None,
+            championList = None):
         self.icon = profileIconId
         self.name = name
         self.puuid = puuid
@@ -265,6 +295,7 @@ class Summoner:
         self.summonerId = summonerId
         self.accountId = accountId
         self.rank = rank #List of Rank objects
+        self.championList = championList #List of Champion objects
 
 if __name__ == '__main__':
     main()

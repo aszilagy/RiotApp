@@ -72,17 +72,17 @@
 
 	<tr id="row">
 	{% for summoner in blueTeam %}
-	  <tr>
-	    <td>{{summoner.name}}</td>
-	    <td>{{summoner.level}}</td>
-	    {% if summoner.rank != None %}
-	    <td>{{summoner.rank[0].tier}} {{summoner.rank[0].rank}}</td>
-	    <td>{{summoner.rank[0].position}}</td>
-	    {% else %}
-	    <td>Unranked</td>
-	    <td>N/A</td>
-	    {% endif %}
-	  </tr>
+	<tr>
+	  <td>{{summoner.name}}</td>
+	  <td>{{summoner.level}}</td>
+	  {% if summoner.rank != None %}
+	  <td>{{summoner.rank[0].tier}} {{summoner.rank[0].rank}}</td>
+	  <td>{{summoner.rank[0].position}}</td>
+	  {% else %}
+	  <td>Unranked</td>
+	  <td>N/A</td>
+	  {% endif %}
+	</tr>
 	{% endfor %}
 	</tr>
 
@@ -110,6 +110,31 @@
 
     </div>
   </div>
+
+  <button id="bt">Modal</button>
+
+  <div id="myModal" class="modal">
+      <div class="modal-content">
+	<span class="close">&times;</span>
+      <p>Some text in the Modal..</p>
+    </div>
+  </div>
+
+  <script>
+    //Use this for settings changes
+    var modal = document.getElementById('myModal');
+    var btn = document.getElementById('bt');
+    var span = document.getElementsByClassName('close')[0];
+    
+    btn.onclick = function(){
+      modal.style.display = "block";
+    }
+
+    span.onclick = function(){
+      modal.style.display = "none";
+    }
+    
+  </script>
 
 </body>
 
