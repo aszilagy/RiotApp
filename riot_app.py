@@ -17,7 +17,8 @@ summonerDict = {}
 def main():
     start = time.time()
 
-    champ = read_static_champion('static/champion.json', 'Zoe')
+    champ = read_static_champion('Xerath')
+    pprint(champ)
 
     zoe = get_champ_page('Xerath')
     pprint(zoe['lore'])
@@ -28,17 +29,31 @@ def main():
     end = time.time()
     print("MAIN TOOK %.2gs" % (end-start))
 
-def get_champ_page(championName, version='9.6.1'):
+def get_champ_page(championName, filename=None, version='9.6.1'):
     #TODO: Update version URL
-    url = "http://ddragon.leagueoflegends.com/cdn/" + version + "/data/en_US/champion/"+ championName + ".json"
-    with urllib.request.urlopen(url) as u:
-        data = json.loads(u.read().decode())
+    if filename is None:
+        filename = 'static/champions/' + championName + '.json'
+
+    try:
+        with open(filename, encoding="utf8") as f:
+            data = json.load(f)
+
+    except: #except FileNotFounderror
+        url = "http://ddragon.leagueoflegends.com/cdn/" + version + "/data/en_US/champion/"+ championName + ".json"
+        with urllib.request.urlopen(url) as u:
+            data = json.loads(u.read().decode())
 
     return data['data'][championName]
 
-def read_static_champion(filename, championName):
-    with open(filename, encoding="utf8") as f:
-        data = json.load(f)
+def read_static_champion(championName, filename='static/champion.json', version='9.6.1'):
+    try:
+        with open(filename, encoding="utf8") as f:
+            data = json.load(f)
+
+    except: #except FileNotFoundError
+        url = "http://ddragon.leagueoflegends.com/cdn/" + version + "/data/en_US/champion.json"
+        with urllib.request.urlopen(url) as u:
+            data = json.loads(u.read().decode())
 
     return data['data'][championName]
 
