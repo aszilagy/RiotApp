@@ -1,6 +1,7 @@
 import requests
 import time
 import json
+import urllib
 from pprint import pprint
 import flask
 import configparser as cf
@@ -11,9 +12,35 @@ config.read('config.ini')
 api_key = config['DEFAULT']['API_KEY']
 summonerDict = {}
 
+#TODO: If can't find champion.json, skins.json, etc.. download them on first run
+#TODO: Check for new versions on https://ddragon.leagueoflegends.com/api/versions.json
 def main():
-    rank = get_summoner_rank(get_summoner_by_name('Mavisl', justId=True))
-    pass
+    start = time.time()
+
+    champ = read_static_champion('static/champion.json', 'Zoe')
+
+    zoe = get_champ_page('Xerath')
+    pprint(zoe['lore'])
+
+    #rank = get_summoner_rank(get_summoner_by_name('Finland Wofls', justId=True))
+    #print(rank[0].tier, rank[0].rank, rank[0].leaguePoints)
+
+    end = time.time()
+    print("MAIN TOOK %.2gs" % (end-start))
+
+def get_champ_page(championName, version='9.6.1'):
+    #TODO: Update version URL
+    url = "http://ddragon.leagueoflegends.com/cdn/" + version + "/data/en_US/champion/"+ championName + ".json"
+    with urllib.request.urlopen(url) as u:
+        data = json.loads(u.read().decode())
+
+    return data['data'][championName]
+
+def read_static_champion(filename, championName):
+    with open(filename, encoding="utf8") as f:
+        data = json.load(f)
+
+    return data['data'][championName]
 
 def get_events(tourn):
     start = time.time()

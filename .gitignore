@@ -1,3 +1,7 @@
+## TEMP
+*.json
+*.swp
+
 # VSCode
 .vscode
 
