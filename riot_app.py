@@ -12,27 +12,32 @@ config.read('config.ini')
 api_key = config['DEFAULT']['API_KEY']
 summonerDict = {}
 
-#TODO: If can't find champion.json, skins.json, etc.. download them on first run
 #TODO: Check for new versions on https://ddragon.leagueoflegends.com/api/versions.json
 def main():
     start = time.time()
+    #ver = get_current_version() #XXX this adds 0.2 seconds, do it once a day to see if new version?
+    ver = '9.6.1'
 
-    champ = read_static_champion('Xerath')
-    pprint(champ)
+    #XXX Make the difference in these two calls clearer
+    champ = read_static_champion('Xerath', version=ver)
+    zoe = get_champ_page('Xerath', version=ver)
 
-    zoe = get_champ_page('Xerath')
-    pprint(zoe['lore'])
-
-    #rank = get_summoner_rank(get_summoner_by_name('Finland Wofls', justId=True))
-    #print(rank[0].tier, rank[0].rank, rank[0].leaguePoints)
+    champ = read_static_champion('Zac', version=ver)
+    zoe = get_champ_page('Zac', version=ver)
 
     end = time.time()
     print("MAIN TOOK %.2gs" % (end-start))
 
+def get_current_version():
+    url = "https://ddragon.leagueoflegends.com/api/versions.json"
+    with urllib.request.urlopen(url) as u:
+       data = json.loads(u.read().decode())
+
+    return data[0]
+
 def get_champ_page(championName, filename=None, version='9.6.1'):
-    #TODO: Update version URL
     if filename is None:
-        filename = 'static/champions/' + championName + '.json'
+        filename = 'static/champions/' + championName + '-' + version + '.json'
 
     try:
         with open(filename, encoding="utf8") as f:
@@ -43,9 +48,14 @@ def get_champ_page(championName, filename=None, version='9.6.1'):
         with urllib.request.urlopen(url) as u:
             data = json.loads(u.read().decode())
 
+        with open(filename, 'w+') as outf:
+            json.dump(data, outf)
+
     return data['data'][championName]
 
-def read_static_champion(championName, filename='static/champion.json', version='9.6.1'):
+def read_static_champion(championName, filename=None, version='9.6.1'):
+    if filename is None:
+        filename='static/champion-'+version+'.json'
     try:
         with open(filename, encoding="utf8") as f:
             data = json.load(f)
@@ -54,6 +64,9 @@ def read_static_champion(championName, filename='static/champion.json', version=
         url = "http://ddragon.leagueoflegends.com/cdn/" + version + "/data/en_US/champion.json"
         with urllib.request.urlopen(url) as u:
             data = json.loads(u.read().decode())
+
+        with open(filename, 'w+') as outf:
+            json.dump(data, outf)
 
     return data['data'][championName]
 
